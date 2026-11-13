@@ -1,0 +1,18 @@
+[package]
+name = "@deckyard/fhir"
+version = "0.1.0"
+description = "HL7 FHIR R4 / R5 REST client: read, search with paging, create, update, patch, delete, history, transactions, operations; bearer tokens and SMART backend services"
+license = "LGPL-3.0-only"
+authors = ["mplx <mplx@jennifer-lang.dev>"]
+# The client talks HTTP(S) to a FHIR server, so the deck needs `net`. No
+# `exec`, no `sql`.
+capabilities = ["net"]
+keywords = ["fhir", "hl7", "healthcare", "rest", "smart-on-fhir", "interoperability", "ehr"]
+
+[package.urls]
+deck = "https://raw.githubusercontent.com/deckyard/deck-fhir/main/deck.toml"
+homepage = "https://github.com/deckyard/deck-fhir"
+manual = "https://deckyard.github.io/deck-fhir/"
+
+[engines]
+jennifer = ">=0.26.0"
