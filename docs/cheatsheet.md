@@ -11,9 +11,9 @@ import "@deckyard/fhir/" as fhir;
 ```
 
 A request the FHIR server refused throws `HttpError` (kind `fhir.http`),
-with `status` and the OperationOutcome's `issues` as fields; every other
-failure is `Error{kind: "fhir"}` (a refused SMART token request carries the
-OAuth error). A `c` argument is a
+with `status` and the OperationOutcome's `issues` as fields; a search or history
+past `maxPages` / `maxBytes` is kind `"limit"`; every other failure is
+`Error{kind: "fhir"}` (a refused SMART token request carries the OAuth error). A `c` argument is a
 `Client`; resources, bundles and patches are `json.Value`; a `query` is a
 `list of string` of `name=value` search parameters.
 

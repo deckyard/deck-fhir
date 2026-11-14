@@ -168,7 +168,7 @@ func matches(b as json.Value) {
  * @param type {string} the resource type
  * @param query {list of string} search parameters as `name=value`
  * @return {list of json.Value} the matching resources
- * @throws {Error} kind "fhir" when a parameter is malformed, a request fails, a next link leaves the server, or the result has more pages than `maxPages` or more bytes in all its pages than `maxBytes`
+ * @throws {Error} kind "fhir" when a parameter is malformed, a request fails or a next link leaves the server; kind "limit" when the result has more pages than `maxPages` or more bytes in all its pages than `maxBytes`
  * @example
  *   for (def p in fhir.search($c, "Patient", ["family=Doe", "birthdate=ge1980-01-01"])) {
  *       io.printf("%s\n", fhir.idOf($p));
@@ -197,7 +197,7 @@ func allPages(c as Client, first as json.Value, size as int, what as string) {
     while ($link != "") {
         $pages = $pages + 1;
         if ($pages > $c.maxPages) {
-            fail(io.sprintf(
+            failLimit(io.sprintf(
                 "%s: more than %d pages; narrow it or raise withMaxPages",
                 $what,
                 $c.maxPages));
@@ -211,7 +211,7 @@ func allPages(c as Client, first as json.Value, size as int, what as string) {
         }
         $total = $total + encoding.lenBytes($r.body);
         if ($total > $c.maxBytes) {
-            fail(io.sprintf(
+            failLimit(io.sprintf(
                 "%s: the pages hold more than %d bytes; narrow it or raise withMaxBytes",
                 $what,
                 $c.maxBytes));
@@ -405,7 +405,7 @@ export func delete(c as Client, type as string, id as string) {
  * @param type {string} the resource type
  * @param id {string} the id
  * @return {list of json.Value} the versions; a deleted version has no resource and is left out
- * @throws {Error} kind "fhir" when the request fails or the history has more pages than `maxPages` or more bytes than `maxBytes`
+ * @throws {Error} kind "fhir" when the request fails; kind "limit" when the history has more pages than `maxPages` or more bytes than `maxBytes`
  */
 export func history(c as Client, type as string, id as string) {
     def path as string init reference($type, $id) + "/_history";

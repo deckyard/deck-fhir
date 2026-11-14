@@ -85,7 +85,9 @@ export func smartBackend(
         def assertion as string init oauth.clientAssertion($alg, $clientId, $tokenUrl, $key, $kid);
         $token = oauth.clientCredentialsJwt($config, $assertion);
     } catch (e) {
-        if ($e.message == "task cancelled") {
+        # A cancel is kind "cancelled" (jennifer after 0.25); the message
+        # match is for older interpreters and goes with the next floor raise.
+        if ($e.kind == "cancelled" or $e.message == "task cancelled") {
             throw $e;
         }
         fail("SMART backend token: " + cleaned($e.message, 1000));

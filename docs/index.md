@@ -28,8 +28,9 @@ import "@deckyard/fhir/" as fhir;
 Resources are `json.Value`, read with `json.asString($r, "/name/0/family")`
 and built with `json.set`: there is no struct per resource type. A request
 the server refuses throws `fhir.HttpError`, kind `fhir.http`, with the HTTP
-`status` and the `issues` of the server's OperationOutcome; any other
-failure is `Error{kind: "fhir"}`:
+`status` and the `issues` of the server's OperationOutcome; a search or
+history past `maxPages` / `maxBytes` is kind `"limit"`; any other failure is
+`Error{kind: "fhir"}`:
 
 ```jennifer
 try {

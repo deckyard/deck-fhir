@@ -36,9 +36,9 @@ for (def o in fhir.search($c, "Observation", ["subject=Patient/123", "code=http:
 `search` follows every `next` link and returns the resources that matched.
 `_count` sets the page size, not the number of results: for the first few
 only, take `resourcesOf(searchBundle(...))`.
-It stops with an error after `maxPages` pages (100; `withMaxPages`), or
-when all pages together hold more than `maxBytes` bytes (8 MiB;
-`withMaxBytes`), rather than reading an unbounded result. Decoded JSON takes
+It stops with an error of kind `"limit"` after `maxPages` pages (100;
+`withMaxPages`), or when all pages together hold more than `maxBytes` bytes
+(8 MiB; `withMaxBytes`), rather than reading an unbounded result. Decoded JSON takes
 roughly twenty times its size in memory, so the default keeps a search
 under about 170 MB. To read more, page yourself with `searchBundle` and
 `nextBundle`, which also give the included resources (`_include`) and the

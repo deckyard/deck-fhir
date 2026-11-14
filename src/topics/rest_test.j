@@ -91,6 +91,7 @@ func testSearchFollowsPages() {
         search(withMaxPages(withMaxBytes($c, 65536), 1000), "Location", []);
         missed("pages over the byte cap");
     } catch (e) {
+        testing.assertEqual($e.kind, "limit");
         testing.assertEqual(
             $e.message,
             "fhir: search Location: the pages hold more than 65536 bytes; narrow it or raise withMaxBytes");
@@ -99,6 +100,7 @@ func testSearchFollowsPages() {
         search(withMaxPages($c, 3), "Encounter", []);
         missed("endless pages");
     } catch (e) {
+        testing.assertEqual($e.kind, "limit");
         testing.assertContains($e.message, "search Encounter: more than 3 pages");
     }
     stopFake($f);
