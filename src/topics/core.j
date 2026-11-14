@@ -66,6 +66,16 @@ func fail(message as string) {
 }
 
 /**
+ * Throw a reached cap: kind "limit", the message as `fail` writes it.
+ *
+ * @param message {string} what was over the cap, without the `fhir: ` prefix
+ * @throws {Error} kind "limit", always
+ */
+func failLimit(message as string) {
+    throw Error{kind: "limit", message: "fhir: " + $message};
+}
+
+/**
  * A request the server answered with a status other than 2xx. Caught, it
  * has kind `fhir.http`, which no other fhir error uses: test the kind, then
  * read `status` and `issues`.
@@ -397,7 +407,9 @@ func exchange(
     try {
         return task.waitTimeout($t, $c.timeoutMs);
     } catch (e) {
-        if ($e.message == "task cancelled") {
+        # A cancel is kind "cancelled" (jennifer after 0.25); the message
+        # match is for older interpreters and goes with the next floor raise.
+        if ($e.kind == "cancelled" or $e.message == "task cancelled") {
             task.cancel($t);
             task.discard($t);
             throw $e;
@@ -407,7 +419,9 @@ func exchange(
             task.discard($t);
             fail(io.sprintf("%s: no answer within %d ms", $what, $c.timeoutMs));
         }
-        if (strings.startsWith($e.message, "http: response body exceeds ")) {
+        # A cap is kind "limit" (jennifer after 0.25: http, net); the message
+        # match is for older interpreters and goes with the next floor raise.
+        if ($e.kind == "limit" or strings.startsWith($e.message, "http: response body exceeds ")) {
             fail(io.sprintf("%s: the response is over %d bytes", $what, $c.maxBytes));
         }
         fail($what + ": cannot reach " + shown($url) + ": " + $e.message);
