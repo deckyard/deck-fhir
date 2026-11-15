@@ -118,13 +118,3 @@ milestones: M28.50 (lint accepts error-shaped structs, found by this deck's
 message parsing), M28.47 (TLS options for `oauth`, not yet used here),
 M28.57 (the error conventions) and M28.65 (transport failures as
 `net.NetError`, passed on).
-
-## History
-
-- 2026-11-13: first version, validated against HAPI FHIR 4.0.1.
-- 2026-11-14: `HttpError` replaced parsing the status from the message; the
-  body and paging caps matched by kind `"limit"`; cancellation by kind.
-- 2026-11-15, 0.2.0: network failures pass on as `net.NetError`; the
-  response cap, decoder caps and the request deadline use the shared kinds
-  `"limit"` and `"timeout"` instead of `"fhir"` (a user decision for every
-  deck).
