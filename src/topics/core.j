@@ -76,6 +76,29 @@ func failLimit(message as string) {
 }
 
 /**
+ * Throw a deadline that passed: kind "timeout", the message as `fail`
+ * writes it.
+ *
+ * @param message {string} what took too long, without the `fhir: ` prefix
+ * @throws {Error} kind "timeout", always
+ */
+func failTimeout(message as string) {
+    throw Error{kind: "timeout", message: "fhir: " + $message};
+}
+
+/**
+ * Whether a caught error has a kind every library shares, which a wrapper
+ * passes on as it is: a reached cap, a deadline, a closed connection, a
+ * cancelled task or a network failure (a `net.NetError`).
+ *
+ * @param kind {string} the error's kind
+ * @return {bool} whether it passes on
+ */
+func generic(kind as string) {
+    return lists.contains(["limit", "timeout", "closed", "cancelled", "net"], $kind);
+}
+
+/**
  * A request the server answered with a status other than 2xx. Caught, it
  * has kind `fhir.http`, which no other fhir error uses: test the kind, then
  * read `status` and `issues`.
@@ -417,12 +440,17 @@ func exchange(
         if ($e.kind == "timeout") {
             task.cancel($t);
             task.discard($t);
-            fail(io.sprintf("%s: no answer within %d ms", $what, $c.timeoutMs));
+            failTimeout(io.sprintf("%s: no answer within %d ms", $what, $c.timeoutMs));
         }
         # A cap is kind "limit" (jennifer after 0.25: http, net); the message
         # match is for older interpreters and goes with the next floor raise.
         if ($e.kind == "limit" or strings.startsWith($e.message, "http: response body exceeds ")) {
-            fail(io.sprintf("%s: the response is over %d bytes", $what, $c.maxBytes));
+            failLimit(io.sprintf("%s: the response is over %d bytes", $what, $c.maxBytes));
+        }
+        # the other kinds every library shares (a closed connection, a
+        # net.NetError) pass on as they are
+        if (generic($e.kind)) {
+            throw $e;
         }
         fail($what + ": cannot reach " + shown($url) + ": " + $e.message);
     }
@@ -468,6 +496,10 @@ func jsonOf(body as string, what as string) {
     try {
         return json.decode($body);
     } catch (e) {
+        # the decoder's nesting and node caps are a reached cap, kind "limit"
+        if ($e.kind == "limit") {
+            failLimit($what + ": " + cleaned($e.message, 1000));
+        }
         fail($what + ": the response is not JSON: " + shown($body));
     }
 }

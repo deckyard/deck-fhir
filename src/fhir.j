@@ -14,8 +14,13 @@
  * backend services through the `oauth` module.
  *
  * A request the server refuses throws `HttpError` (kind `fhir.http`) with the
- * HTTP status and the OperationOutcome's issues as fields; every other
- * failure is `Error{kind: "fhir"}`. Every request has a deadline and a
+ * HTTP status and the OperationOutcome's issues as fields; a response or
+ * search over a cap (or nested past the JSON decoder's) is kind `"limit"`,
+ * a request with no answer in time `"timeout"`, a connection closed
+ * mid-answer `"closed"`, a cancelled task `"cancelled"`, and a network
+ * failure (refused, reset, unreachable, DNS, TLS) the `net.NetError` of
+ * kind `"net"` that `http` threw; every other failure is
+ * `Error{kind: "fhir"}`. Every request has a deadline and a
  * response cap; plain `http` is refused except to this machine; links the
  * server returns are followed only below its base URL, so the token never
  * leaves it.

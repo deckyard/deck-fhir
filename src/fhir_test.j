@@ -12,6 +12,7 @@
 use crypto;
 use encoding;
 use httpd;
+use net;
 use testing;
 use time;
 

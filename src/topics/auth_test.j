@@ -124,4 +124,31 @@ func testSmartTokenClaimsAndRefusals() {
         testing.assertContains($e.message, "invalid_client");
     }
     stopFake($g);
+    # a token endpoint nobody listens on: net's NetError, through oauth
+    def h as Fake init startFake({
+        "GET /fhir/.well-known/smart-configuration": "200\n\n" +
+            '{"token_endpoint":"http://' + closedAddress() + '/token"}'
+    });
+    try {
+        smartBackend(fakeClient($h), "svc", "system/*.rs", "ES384", $key, "k1");
+        missed("an unreachable token endpoint");
+    } catch (e) {
+        testing.assertEqual($e.kind, "net");
+        def ne as net.NetError init $e;
+        testing.assertEqual($ne.reason, "refused");
+    }
+    stopFake($h);
+    # a token answer over oauth's 1 MiB cap: oauth's "limit", passed on
+    def big as Fake init startFake({
+        "GET /fhir/.well-known/smart-configuration": "200\n\n" + '{"token_endpoint":"BASE/token"}',
+        "POST /fhir/token": "200\nContent-Type: application/json\n\n" +
+            '{"access_token":"' + strings.repeat("x", 1100000) + '"}'
+    });
+    try {
+        smartBackend(fakeClient($big), "svc", "system/*.rs", "ES384", $key, "k1");
+        missed("an oversized token answer");
+    } catch (e) {
+        testing.assertEqual($e.kind, "limit");
+    }
+    stopFake($big);
 }

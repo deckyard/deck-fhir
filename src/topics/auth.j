@@ -90,6 +90,11 @@ export func smartBackend(
         if ($e.kind == "cancelled" or $e.message == "task cancelled") {
             throw $e;
         }
+        # the kinds every library shares (a cap, a deadline, a closed
+        # connection, a net.NetError) pass on as oauth threw them
+        if (generic($e.kind)) {
+            throw $e;
+        }
         fail("SMART backend token: " + cleaned($e.message, 1000));
     }
     if (strings.lower($token.tokenType) != "bearer") {

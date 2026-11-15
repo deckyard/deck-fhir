@@ -28,8 +28,13 @@ import "@deckyard/fhir/" as fhir;
 Resources are `json.Value`, read with `json.asString($r, "/name/0/family")`
 and built with `json.set`: there is no struct per resource type. A request
 the server refuses throws `fhir.HttpError`, kind `fhir.http`, with the HTTP
-`status` and the `issues` of the server's OperationOutcome; a search or
-history past `maxPages` / `maxBytes` is kind `"limit"`; any other failure is
+`status` and the `issues` of the server's OperationOutcome; a response over
+`maxBytes` (or nested past the JSON decoder's caps) and a search or history
+past `maxPages` / `maxBytes` are kind `"limit"`; no answer within the
+timeout is `"timeout"`, a connection closed mid-answer `"closed"`; a server (or SMART
+token endpoint) that cannot be reached, resets the connection or fails the
+TLS handshake is kind `"net"`, the `net.NetError` that `http` threw, with
+`op`, `reason`, `sent` and `replied` to read; any other failure is
 `Error{kind: "fhir"}`:
 
 ```jennifer

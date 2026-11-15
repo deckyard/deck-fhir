@@ -234,30 +234,58 @@ func testDeadlinesAndCaps() {
     def f as Fake init startFake({
         "GET /fhir/Patient/slow": "SLEEP\n\n",
         "GET /fhir/Patient/big": "200\n\n" + '{"resourceType":"Patient","text":"' +
-            strings.repeat("x", 70000) + '"}'
+            strings.repeat("x", 70000) + '"}',
+        "GET /fhir/Patient/deep": "200\n\n" + strings.repeat("[", 5000) + strings.repeat("]", 5000)
     });
     def c as Client init withTimeout(fakeClient($f), 1000);
     try {
         read(withMaxBytes($c, 65536), "Patient", "big");
         missed("a big response");
     } catch (e) {
+        testing.assertEqual($e.kind, "limit");
         testing.assertContains($e.message, "the response is over 65536 bytes");
+    }
+    # a reply nested past the JSON decoder's caps is a reached cap too
+    try {
+        read($c, "Patient", "deep");
+        missed("a deep response");
+    } catch (e) {
+        testing.assertEqual($e.kind, "limit");
+        testing.assertContains($e.message, "fhir: read Patient/deep: ");
     }
     def started as time.Time init time.now();
     try {
         read($c, "Patient", "slow");
         missed("a slow server");
     } catch (e) {
+        testing.assertEqual($e.kind, "timeout");
         testing.assertEqual($e.message, "fhir: read Patient/slow: no answer within 1000 ms");
     }
     testing.assertTrue(time.milliseconds(time.sub(time.now(), $started)) < 2500);
     stopFake($f);
+    # nobody listening: net's NetError, passed on with its fields
     try {
-        read(client("http://127.0.0.1:1/fhir"), "Patient", "x");
+        read(client("http://" + closedAddress() + "/fhir"), "Patient", "x");
         missed("nobody listening");
     } catch (e) {
-        testing.assertContains($e.message, "cannot reach");
+        testing.assertEqual($e.kind, "net");
+        def ne as net.NetError init $e;
+        testing.assertEqual($ne.reason, "refused");
+        testing.assertEqual($ne.op, "connect");
+        testing.assertFalse($ne.sent);
     }
+}
+
+/**
+ * A loopback address nothing listens on.
+ *
+ * @return {string} `127.0.0.1:<port>`
+ */
+func closedAddress() {
+    def server as net.Listener init net.listen("127.0.0.1:0");
+    def address as string init net.address($server);
+    net.close($server);
+    return $address;
 }
 
 func testServerTextCannotForgeOrFlood() {

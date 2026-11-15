@@ -11,8 +11,12 @@ import "@deckyard/fhir/" as fhir;
 ```
 
 A request the FHIR server refused throws `HttpError` (kind `fhir.http`),
-with `status` and the OperationOutcome's `issues` as fields; a search or history
-past `maxPages` / `maxBytes` is kind `"limit"`; every other failure is
+with `status` and the OperationOutcome's `issues` as fields; a response over
+`maxBytes` (or nested past the JSON decoder's caps) and a search or history
+past `maxPages` / `maxBytes` are kind `"limit"`; no answer within the timeout
+is `"timeout"`, a connection closed mid-answer `"closed"`, a cancelled task
+`"cancelled"`; a network failure (refused, reset, unreachable, DNS, TLS) is
+kind `"net"`, the `net.NetError` that `http` threw; every other failure is
 `Error{kind: "fhir"}` (a refused SMART token request carries the OAuth error). A `c` argument is a
 `Client`; resources, bundles and patches are `json.Value`; a `query` is a
 `list of string` of `name=value` search parameters.
