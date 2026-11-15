@@ -405,7 +405,7 @@ export func delete(c as Client, type as string, id as string) {
  * @param type {string} the resource type
  * @param id {string} the id
  * @return {list of json.Value} the versions; a deleted version has no resource and is left out
- * @throws {Error} kind "fhir" when the request fails; kind "limit" when the history has more pages than `maxPages` or more bytes than `maxBytes`
+ * @throws {Error} kind "fhir" when the request fails; kind "limit" when the history has more pages than `maxPages` or more bytes than `maxBytes`; kind "timeout", "closed" or "net" as the transport threw it
  */
 export func history(c as Client, type as string, id as string) {
     def path as string init reference($type, $id) + "/_history";
