@@ -112,7 +112,8 @@ Out of scope:
 
 ## Dependencies on the interpreter
 
-Floor `>=0.26.0`, capability `net`. It needs `oauth.clientAssertion` and
+Floor `>=0.27.0`, capability `net`, for the UTF-8 codec of `encoding.decode`
+and `strings.replicate`. It needs `oauth.clientAssertion` and
 `clientCredentialsJwt` from the bundled `oauth` module. From `jennifer`'s
 milestones: M28.50 (lint accepts error-shaped structs, found by this deck's
 message parsing), M28.47 (TLS options for `oauth`, not yet used here),

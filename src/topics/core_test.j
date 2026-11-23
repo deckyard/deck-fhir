@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 # SPDX-FileCopyrightText: Copyright (C) 2026 mplx <mplx@jennifer-lang.dev>
-# pragma-jennifer-version: >=0.26.0
+# pragma-jennifer-version: >=0.27.0
 
 # fhir - white-box tests for the core topic, and the fake server the other
 # overlays use. Spliced into fhir_test.j via include.
@@ -32,7 +32,8 @@ func missed(what as string) {
  * Start a fake FHIR server. An answer is looked up by `METHOD path?query`,
  * then `METHOD path`; it is the status, a newline, header lines `Name: value`,
  * an empty line and the body; `BASE` in it becomes the server's base URL. A
- * request with no answer gets 404 and an OperationOutcome.
+ * request with no answer gets 404 and an OperationOutcome; status
+ * `SLEEP <ms>` waits that long and answers 200 `{}`.
  *
  * @param answers {map of string to string} the answers
  * @return {Fake} the server
@@ -74,7 +75,7 @@ func serveFake(srv as httpd.Server, answers as map of string to string, base as 
                 $line[] = $h + "=" + httpd.header($req, $h);
             }
         }
-        $line[] = convert.stringFromBytes("utf-8", httpd.body($req));
+        $line[] = encoding.decode("utf-8", httpd.body($req));
         $seen[] = strings.join($line, "|");
         def spec as string init "404\n\n" +
             '{"resourceType":"OperationOutcome","issue":[{"severity":"error","code":"not-found","diagnostics":"no answer for ' +
@@ -91,8 +92,8 @@ func serveFake(srv as httpd.Server, answers as map of string to string, base as 
             def at as int init strings.indexOf($h, ": ");
             httpd.setHeader($req, $h[..$at], $h[$at + 2..]);
         }
-        if ($head[0] == "SLEEP") {
-            time.sleep(time.fromMilliseconds(3000));
+        if (strings.startsWith($head[0], "SLEEP ")) {
+            time.sleep(time.fromMilliseconds(convert.toInt($head[0][len("SLEEP ")..])));
             httpd.respond($req, 200, '{}');
         } else {
             httpd.respond($req, convert.toInt($head[0]), $spec[$split + 2..]);

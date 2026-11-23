@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 # SPDX-FileCopyrightText: Copyright (C) 2026 mplx <mplx@jennifer-lang.dev>
-# pragma-jennifer-version: >=0.26.0
+# pragma-jennifer-version: >=0.27.0
 
 # fhir - white-box tests for the rest topic. Spliced into fhir_test.j via
 # include.
@@ -70,7 +70,7 @@ func testSearchFollowsPages() {
             '{"resourceType":"Bundle","type":"searchset","link":[{"relation":"next","url":"https://evil.example/steal"}],"entry":[]}',
         "GET /fhir/Location": "200\n\n" +
             '{"resourceType":"Bundle","type":"searchset","link":[{"relation":"next","url":"BASE/Location"}],"entry":[{"resource":{"resourceType":"Location","id":"l","description":"' +
-            strings.repeat("x", 30000) + '"}}]}',
+            strings.replicate("x", 30000) + '"}}]}',
         "GET /fhir/Encounter": "200\n\n" +
             '{"resourceType":"Bundle","type":"searchset","link":[{"relation":"next","url":"BASE/Encounter"}],"entry":[{"resource":{"resourceType":"Encounter","id":"e"}}]}'
     });
@@ -232,10 +232,11 @@ func testHistoryTransactionsOperationsAndCall() {
 
 func testDeadlinesAndCaps() {
     def f as Fake init startFake({
-        "GET /fhir/Patient/slow": "SLEEP\n\n",
+        "GET /fhir/Patient/slow": "SLEEP 1250\n\n",
         "GET /fhir/Patient/big": "200\n\n" + '{"resourceType":"Patient","text":"' +
-            strings.repeat("x", 70000) + '"}',
-        "GET /fhir/Patient/deep": "200\n\n" + strings.repeat("[", 5000) + strings.repeat("]", 5000)
+            strings.replicate("x", 70000) + '"}',
+        "GET /fhir/Patient/deep": "200\n\n" + strings.replicate("[", 5000) +
+            strings.replicate("]", 5000)
     });
     def c as Client init withTimeout(fakeClient($f), 1000);
     try {
@@ -309,7 +310,7 @@ func testServerTextCannotForgeOrFlood() {
         statusText: "Bad Request",
         headers: {},
         body: '{"resourceType":"OperationOutcome","issue":[{"severity":"error","code":"invalid","diagnostics":"' +
-            strings.repeat("x", 5000) + '"}]}'
+            strings.replicate("x", 5000) + '"}]}'
     };
     testing.assertEqual(len(outcomeIssues($long)), 1);
     testing.assertTrue(len(explain(outcomeIssues($long), $long)) <= 1003);
@@ -365,7 +366,7 @@ func testDotIdsAndOddLocationsAreRefused() {
 
 func testThePageCapCountsBytes() {
     def page as string init '{"resourceType":"Bundle","type":"searchset","link":[{"relation":"next","url":"BASE/Media"}],"entry":[{"resource":{"resourceType":"Media","id":"m","text":"' +
-        strings.repeat("é", 20000) + '"}}]}';
+        strings.replicate("é", 20000) + '"}}]}';
     def f as Fake init startFake({"GET /fhir/Media": "200\n\n" + $page});
     try {
         search(withMaxBytes(fakeClient($f), 65536), "Media", []);

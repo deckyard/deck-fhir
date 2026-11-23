@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 # SPDX-FileCopyrightText: Copyright (C) 2026 mplx <mplx@jennifer-lang.dev>
-# pragma-jennifer-version: >=0.26.0
+# pragma-jennifer-version: >=0.27.0
 
 # fhir - white-box tests for the resources topic. Spliced into fhir_test.j
 # via include.
@@ -32,7 +32,7 @@ func testResourceBasics() {
         ["patient", "1"],
         ["Patient", "a/b"],
         ["Patient", ""],
-        ["Patient", strings.repeat("x", 65)]
+        ["Patient", strings.replicate("x", 65)]
     ]) {
         try {
             reference($bad[0], $bad[1]);

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 # SPDX-FileCopyrightText: Copyright (C) 2026 mplx <mplx@jennifer-lang.dev>
-# pragma-jennifer-version: >=0.26.0
+# pragma-jennifer-version: >=0.27.0
 
 # fhir - white-box tests for the auth topic. Spliced into fhir_test.j via
 # include.
@@ -31,11 +31,11 @@ func testSmartBackendServices() {
         "client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer");
     testing.assertContains($form, "scope=system%2FPatient.rs");
     def m as regex.Match init regex.find('client_assertion=([A-Za-z0-9_-]+)\.', $form);
-    def header as string init convert.stringFromBytes(
+    def header as string init encoding.decode(
         "utf-8",
         encoding.fromText(
             "base64-url",
-            $m.groups[0] + strings.repeat("=", (4 - len($m.groups[0]) % 4) % 4)));
+            $m.groups[0] + strings.replicate("=", (4 - len($m.groups[0]) % 4) % 4)));
     testing.assertContains($header, "\"alg\":\"ES384\"");
     testing.assertContains($header, "\"kid\":\"k1\"");
     testing.assertEqual(
@@ -103,9 +103,9 @@ func testSmartTokenClaimsAndRefusals() {
         'client_assertion=[A-Za-z0-9_-]+\.([A-Za-z0-9_-]+)\.',
         $seen[1]);
     def part as string init $m.groups[0];
-    def claims as json.Value init json.decode(convert.stringFromBytes(
+    def claims as json.Value init json.decode(encoding.decode(
         "utf-8",
-        encoding.fromText("base64-url", $part + strings.repeat("=", (4 - len($part) % 4) % 4))));
+        encoding.fromText("base64-url", $part + strings.replicate("=", (4 - len($part) % 4) % 4))));
     testing.assertEqual(json.asString($claims, "/iss"), "svc");
     testing.assertEqual(json.asString($claims, "/sub"), "svc");
     testing.assertTrue(strings.endsWith(json.asString($claims, "/aud"), "/fhir/token?realm=a"));
@@ -142,7 +142,7 @@ func testSmartTokenClaimsAndRefusals() {
     def big as Fake init startFake({
         "GET /fhir/.well-known/smart-configuration": "200\n\n" + '{"token_endpoint":"BASE/token"}',
         "POST /fhir/token": "200\nContent-Type: application/json\n\n" +
-            '{"access_token":"' + strings.repeat("x", 1100000) + '"}'
+            '{"access_token":"' + strings.replicate("x", 1100000) + '"}'
     });
     try {
         smartBackend(fakeClient($big), "svc", "system/*.rs", "ES384", $key, "k1");
