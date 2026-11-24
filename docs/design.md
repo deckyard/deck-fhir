@@ -5,7 +5,7 @@
 
 ## Scope
 
-An HL7 FHIR R4 / R5 REST client over the bundled `http`, `json` and `oauth`
+An HL7™ FHIR™ R4 / R5 REST client over the bundled `http`, `json` and `oauth`
 modules: `capabilities`, `read` / `vread`, `search` following the bundle's
 next links (or `searchBundle` / `nextBundle` to page by hand), `create`,
 `update`, `patch` (JSON Patch), `delete`, `history`, `transaction` / `batch`,

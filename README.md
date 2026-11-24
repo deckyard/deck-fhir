@@ -4,7 +4,7 @@
 [![Documentation](https://img.shields.io/badge/docs-github%20pages-blue)](https://deckyard.github.io/deck-fhir/)
 [![release](https://img.shields.io/github/v/release/deckyard/deck-fhir)](https://github.com/deckyard/deck-fhir/releases/latest)
 
-An HL7 FHIR R4 / R5 client for [Jennifer](https://jennifer-lang.dev/)
+An HL7™ FHIR™ R4 / R5 client for [Jennifer](https://jennifer-lang.dev/)
 programs: read, search with paging, create, update and JSON Patch with
 version checks, delete, history, transactions, batches and operations,
 with resources as `json.Value`, helpers for references, identifiers,
@@ -50,6 +50,14 @@ jennifer test src/fhir_test.j        # the tests, against a fake server
 tools/check-docs.sh                  # docs against the code
 tools/pack.sh dist                   # build the release archive
 ```
+
+## Trademarks
+
+HL7™ and FHIR™ are trademarks of Health Level Seven International. Other
+product and company names may be trademarks of their respective owners. They
+are used only to identify the standards this deck works with. This deck is
+an independent project, not affiliated with, sponsored or endorsed by Health
+Level Seven International.
 
 ## Licence
 

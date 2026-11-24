@@ -10,7 +10,7 @@ Every export of `@deckyard/fhir`. Guides are listed in
 import "@deckyard/fhir/" as fhir;
 ```
 
-A request the FHIR server refused throws `HttpError` (kind `fhir.http`),
+A request the FHIR™ server refused throws `HttpError` (kind `fhir.http`),
 with `status` and the OperationOutcome's `issues` as fields; a response over
 `maxBytes` (or nested past the JSON decoder's caps) and a search or history
 past `maxPages` / `maxBytes` are kind `"limit"`; no answer within the timeout

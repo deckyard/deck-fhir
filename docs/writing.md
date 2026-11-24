@@ -21,7 +21,7 @@ io.printf("created %s version %s\n", fhir.referenceOf($p), fhir.versionOf($p));
 `update` puts a resource with its id. When the resource carries
 `meta.versionId`, as one just read does, the deck sends it as `If-Match`,
 and the server applies the update only if nobody changed the resource in
-between; otherwise it answers HTTP 412, or 409 as HAPI FHIR does:
+between; otherwise it answers HTTP 412, or 409 as HAPI FHIR™ does:
 
 ```jennifer
 def p as json.Value init fhir.read($c, "Patient", "123");

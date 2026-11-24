@@ -3,7 +3,7 @@
 
 # @deckyard/fhir
 
-FHIR is the REST API of newer health systems: patients, encounters,
+FHIR™ is the REST API of newer health systems: patients, encounters,
 observations, medications and some 150 other resource types, as JSON over
 HTTP. This deck is a client for FHIR R4 and R5 servers (HAPI FHIR, the
 cloud health APIs, EHR vendors' endpoints): read, search with paging,
@@ -61,3 +61,11 @@ before it goes into an error message.
 Out of scope: profile validation and FHIRPath, terminology services,
 subscriptions. The deck needs the `net` capability and does not run on
 `jennifer-tiny`.
+
+## Trademarks
+
+HL7™ and FHIR™ are trademarks of Health Level Seven International. Other
+product and company names may be trademarks of their respective owners. They
+are used only to identify the standards this deck works with. This deck is
+an independent project, not affiliated with, sponsored or endorsed by Health
+Level Seven International.
